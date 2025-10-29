@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CT Tech Skills Infographic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 450px;
+        }
+        .chart-container-tall {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 600px;
+            max-height: 700px;
+        }
+        .chart-container-small {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 450px;
+                max-height: 500px;
+            }
+            .chart-container-tall {
+                height: 600px;
+                max-height: 700px;
+            }
+            .chart-container-small {
+                height: 400px;
+                max-height: 450px;
+            }
+        }
+        @media (max-width: 767px) {
+             .chart-container, .chart-container-tall, .chart-container-small {
+                height: 350px;
+                max-height: 400px;
+            }
+            .chart-container-tall {
+                height: 500px;
+                max-height: 550px;
+            }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-dark': '#023E7D',
+                        'primary-medium': '#00509D',
+                        'primary-light': '#0077B6',
+                        'accent-1': '#00B4D8',
+                        'accent-2': '#48CAE4',
+                        'accent-3': '#90E0EF',
+                        'bg-light': '#CAF0F8',
+                        'bg-page': '#F8F9FA',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-bg-page font-sans antialiased">
+
+    <header class="bg-primary-dark text-white p-6 md:p-10 text-center shadow-lg">
+        <h1 class="text-3xl md:text-5xl font-extrabold">Mapping Connecticut's Tech Skills Ecosystem</h1>
+        <p class="text-lg md:text-2xl mt-2 text-accent-3">An Analysis of Talent Demand for the Stamford Partnership</p>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <section id="summary" class="my-8 md:my-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-primary-dark mb-6 text-center">Executive Summary</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <div class="bg-white p-6 rounded-lg shadow-xl text-center border-t-4 border-primary-medium">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Total Tech Job Postings (CT)</h3>
+                    <p id="totalPostings" class="text-6xl font-extrabold text-primary-medium">...</p>
+                    <p class="text-gray-500 mt-2">Last 90 Days (Indeed)</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">The "Big 3" MSAs</h3>
+                    <p class="text-gray-600 text-lg">The vast majority of tech demand is concentrated in three key regions: Hartford, Stamford, and New Haven, which together form the core of the state's tech economy.</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Stamford's Skill Signature</h3>
+                    <p class="text-gray-600 text-lg">While Hartford leads in volume, the Stamford MSA shows a distinct and powerful concentration in specialized, high-value roles, setting it apart as a unique tech hub.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="landscape" class="my-8 md:my-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-primary-dark mb-6 text-center">Analysis 1: The Connecticut Tech Landscape</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-4xl mx-auto text-center">First, we look at the high-level distribution of tech job demand across the state. This shows *where* the tech jobs are concentrated and establishes the relative scale of each regional market.</p>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                
+                <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-xl">
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Tech Demand by MSA (Total Postings)</h3>
+                    <p class="text-gray-600 mb-4 text-center">Hartford clearly leads in overall volume, with the Bridgeport-Stamford-Norwalk and New Haven MSAs forming the next major tier. This chart visually confirms the "Big 3" MSAs that dominate the state's tech landscape.</p>
+                    <div class="chart-container">
+                        <canvas id="msaBarChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-xl">
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Market Share of Tech Demand</h3>
+                    <p class="text-gray-600 mb-4 text-center">This chart visualizes the concentration. The "Big 3" MSAs account for over 90% of all tech job postings in Connecticut, with the remaining regions representing a much smaller fraction of the market.</p>
+                    <div class="chart-container-small">
+                        <canvas id="msaDonutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="top-roles" class="my-8 md:my-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-primary-dark mb-6 text-center">Analysis 2: Top In-Demand Occupations (CT-Wide)</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-4xl mx-auto text-center">Next, we analyze *what* specific occupations are most in-demand across the entire state. This identifies the foundational tech skills Connecticut's economy is built on.</p>
+            <div class="bg-white p-6 rounded-lg shadow-xl">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Top 15 Most In-Demand Tech Occupations (State-Wide)</h3>
+                <p class="text-gray-600 mb-4 text-center">Generalist roles like Software Development and Project Management, along with IT Support, form the backbone of state-wide demand. This represents the common "tech infrastructure" all industries need.</p>
+                <div class="chart-container-tall">
+                    <canvas id="topRolesChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="signatures" class="my-8 md:my-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-primary-dark mb-6 text-center">Analysis 3: Regional "Skill Signatures"</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-4xl mx-auto text-center">This is the core of the analysis. We move beyond simple volume to understand what makes each region *unique*. We compare the "Big 3" directly and then use a Location Quotient (LQ) analysis to identify Stamford's specific "tech DNA."</p>
+
+            <div class="bg-white p-6 rounded-lg shadow-xl mb-12">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Top 5 Occupations in the "Big 3" MSAs</h3>
+                <p class="text-gray-600 mb-4 text-center">A side-by-side comparison shows both similarities and subtle differences. While "Software Development" and "Technical Project Managers" are top needs everywhere, the other roles in the top 5 hint at different industrial focuses.</p>
+                <div class="chart-container">
+                    <canvas id="groupedBarChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-xl mb-12">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Stamford's Unique "Tech DNA": Top 10 Specialized Roles</h3>
+                <p class="text-gray-600 mb-4 text-center">Location Quotient (LQ) measures specialization. An LQ > 1.0 means a role is *more concentrated* in Stamford than in the state average. This chart shows what Stamford *specializes* in, regardless of total volume. This is its true "skill signature."</p>
+                <div class="chart-container-tall" style="height: 500px; max-height: 600px;">
+                    <canvas id="lqChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-xl">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-4 text-center">Stamford MSA: Volume vs. Specialization</h3>
+                <p class="text-gray-600 mb-4 text-center max-w-3xl mx-auto">This chart tells the full story. It plots all of Stamford's tech roles by their total posting volume (horizontal axis) against their specialization (vertical axis). This helps us identify four key quadrants:</p>
+                <div class="flex justify-center flex-wrap gap-4 my-4 text-sm">
+                    <span class="font-bold text-primary-dark">Top-Right: High Volume & Specialized (Core Strengths)</span>
+                    <span class="font-bold text-primary-light">Top-Left: Low Volume & Specialized (Niche Strengths)</span>
+                    <span class="font-bold text-gray-600">Bottom-Right: High Volume & Unspecialized (Commodity Roles)</span>
+                    <span class="font-bold text-gray-400">Bottom-Left: Low Volume & Unspecialized</span>
+                </div>
+                <div class="chart-container" style="height: 500px; max-height: 550px;">
+                    <div id="bubbleChart" style="width: 100%; height: 100%;"></div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="implications" class="my-8 md:my-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-primary-dark mb-6 text-center">Strategic Implications for the Stamford Partnership</h2>
+            <p class="text-lg text-gray-700 mb-10 max-w-4xl mx-auto text-center">This data provides a clear, evidence-based narrative for economic development, talent attraction, and workforce strategy.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-lg shadow-xl border-l-8 border-accent-1 transform hover:scale-105 transition-transform duration-300">
+                    <h3 class="text-2xl font-bold text-primary-dark mb-3">Identify Core Strengths</h3>
+                    <p class="text-gray-700 text-lg">Stamford is not just a smaller Hartford; it's a specialized hub for high-value roles. This analysis proves its unique ecosystem in areas like Data Science, Cybersecurity, and Enterprise Architecture.</p>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-xl border-l-8 border-accent-1 transform hover:scale-105 transition-transform duration-300">
+                    <h3 class="text-2xl font-bold text-primary-dark mb-3">Focus Talent Competition</h3>
+                    <p class="text-gray-700 text-lg">While Stamford competes with Hartford for general "Software Developers," its *real* competition for specialized roles may be out-of-state hubs. This data helps focus talent attraction efforts.</p>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-xl border-l-8 border-accent-1 transform hover:scale-105 transition-transform duration-300">
+                    <h3 class="text-2xl font-bold text-primary-dark mb-3">Spot Gaps & Opportunities</h3>
+                    <p class="text-gray-700 text-lg">Roles with low specialization (Low LQ) but high state-wide demand might represent a talent gap or an opportunity for new workforce development programs to build a future pipeline.</p>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-xl border-l-8 border-accent-1 transform hover:scale-105 transition-transform duration-300">
+                    <h3 class="text-2xl font-bold text-primary-dark mb-3">Tell the Stamford Story</h3>
+                    <p class="text-gray-700 text-lg">This data *is* the story. It allows the Partnership to market the region to companies and talent with concrete evidence of its vibrant, specialized, and high-value tech community.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-primary-dark text-white p-8 text-center mt-12">
+        <p>&copy; 2025 Stamford Partnership Data Analysis. Data sourced from Indeed (Last 90 Days).</p>
+    </footer>
+
+    <script>
+        const csvData = `
+"Query:,https://link.indeed.tech/RTPDAPHE48X"
+
+"agg_job_id___msaName[1000]",agg_job_id___taxo_occupations_single_most_specific_suid,DISTINCT(agg_job_id)
+"hartford-east hartford-middletown, ct","Technology Infrastructure Engineers [25WFU]",36
+"hartford-east hartford-middletown, ct","User Experience Designers & Researchers [5J37J]",68
+"hartford-east hartford-middletown, ct","Software Development Occupations [5NN53]",670
+"hartford-east hartford-middletown, ct","Technical Project & Program Managers [6AZZZ]",500
+"hartford-east hartford-middletown, ct","Data & Database Occupations [6D2D2]",83
+"hartford-east hartford-middletown, ct","Information & Network Security Architects [6FHHK]",37
+"hartford-east hartford-middletown, ct","Information & Network Security Occupations [8YMQQ]",177
+"hartford-east hartford-middletown, ct","Enterprise Architects [A6DSQ]",71
+"hartford-east hartford-middletown, ct","Network Administrators & Architects [ADDBV]",1
+"hartford-east hartford-middletown, ct","Embedded Software & Firmware Developers [AFCY5]",44
+"hartford-east hartford-middletown, ct","Content Strategy & Information Architecture Occupations [BERXT]",35
+"hartford-east hartford-middletown, ct","Data & Technical Business Analysts [BY575]",416
+"hartford-east hartford-middletown, ct","Information Technology Vice Presidents & Directors [CECTG]",359
+"hartford-east hartford-middletown, ct","Business-to-Business Technical Support Occupations [CM893]",292
+"hartford-east hartford-middletown, ct","Technology Infrastructure Occupations [D3666]",83
+"hartford-east hartford-middletown, ct","Chief Information Officers & Chief Technology Officers [DH48D]",9
+"hartford-east hartford-middletown, ct","Software & Web Developers, Programmers, & Testers [DL222]",179
+"hartford-east hartford-middletown, ct","Back End Developers [DPPLP]",187
+"hartford-east hartford-middletown, ct","Database Administrators [EGZZJ]",36
+"hartford-east hartford-middletown, ct","Technology Occupations [EHPW9]",608
+"hartford-east hartford-middletown, ct","Computer & Information Research Scientists [EUQRL]",2
+"hartford-east hartford-middletown, ct","Technology Management Occupations [EYY6Y]",82
+"hartford-east hartford-middletown, ct","Information Technology Operations Occupations [FNY6Y]",1
+"hartford-east hartford-middletown, ct","Full Stack Developers [G6H66]",258
+"hartford-east hartford-middletown, ct","Data & Database Administrators, Architects, & Developers [GZZZ2]",35
+"hartford-east hartford-middletown, ct","Systems & Applications Administrators & Architects [HRAZZ]",172
+"hartford-east hartford-middletown, ct","Systems & Applications Engineers & Analysts [Z69Z3]",279
+"hartford-east hartford-middletown, ct","Information Technology Auditors [JBGGB]",47
+"hartford-east hartford-middletown, ct","Network Administrators [JUTT4]",110
+"hartford-east hartford-middletown, ct","Network Engineers & Architects [JZJDD]",121
+"hartford-east hartford-middletown, ct","Software Quality Assurance Occupations [KPD97]",173
+"hartford-east hartford-middletown, ct","Cloud Architects & Engineers [LZZPZ]",200
+"hartford-east hartford-middletown, ct","Technical Support Occupations [N3YNG]",464
+"hartford-east hartford-middletown, ct","Business Systems Analysts [NA56S]",6
+"hartford-east hartford-middletown, ct","Information & Network Security Engineers & Analysts [TMDTF]",107
+"hartford-east hartford-middletown, ct","Game Developers [VH255]",8
+"hartford-east hartford-middletown, ct","Technical Product Managers & Owners [VNHWM]",152
+"hartford-east hartford-middletown, ct","Data Management & Integration Developers [WWP6P]",68
+"hartford-east hartford-middletown, ct","Business-to-Consumer Technical Support Occupations [X36BC]",78
+"hartford-east hartford-middletown, ct","Information Technology Project & Program Managers [X4XX4]",2
+"hartford-east hartford-middletown, ct","Data Developers [XXX29]",26
+"hartford-east hartford-middletown, ct","Front End Developers [ZW3TH]",81
+"bridgeport-stamford-norwalk, ct","Technology Infrastructure Engineers [25WFU]",31
+"bridgeport-stamford-norwalk, ct","User Experience Designers & Researchers [5J37J]",48
+"bridgeport-stamford-norwalk, ct","Software Development Occupations [5NN53]",480
+"bridgeport-stamford-norwalk, ct","Technical Project & Program Managers [6AZZZ]",367
+"bridgeport-stamford-norwalk, ct","Data & Database Occupations [6D2D2]",74
+"bridgeport-stamford-norwalk, ct","Information & Network Security Architects [6FHHK]",44
+"bridgeport-stamford-norwalk, ct","Information & Network Security Occupations [8YMQQ]",149
+"bridgeport-stamford-norwalk, ct","Enterprise Architects [A6DSQ]",68
+"bridgeport-stamford-norwalk, ct","Network Administrators & Architects [ADDBV]",1
+"bridgeport-stamford-norwalk, ct","Embedded Software & Firmware Developers [AFCY5]",26
+"bridgeport-stamford-norwalk, ct","Content Strategy & Information Architecture Occupations [BERXT]",30
+"bridgeport-stamford-norwalk, ct","Data & Technical Business Analysts [BY575]",332
+"bridgeport-stamford-norwalk, ct","Information Technology Vice Presidents & Directors [CECTG]",452
+"bridgeport-stamford-norwalk, ct","Business-to-Business Technical Support Occupations [CM893]",128
+"bridgeport-stamford-norwalk, ct","Technology Infrastructure Occupations [D3666]",59
+"bridgeport-stamford-norwalk, ct","Chief Information Officers & Chief Technology Officers [DH48D]",22
+"bridgeport-stamford-norwalk, ct","Software & Web Developers, Programmers, & Testers [DL222]",123
+"bridgeport-stamford-norwalk, ct","Back End Developers [DPPLP]",131
+"bridgeport-stamford-norwalk, ct","Database Administrators [EGZZJ]",25
+"bridgeport-stamford-norwalk, ct","Technology Occupations [EHPW9]",470
+"bridgeport-stamford-norwalk, ct","Computer & Information Research Scientists [EUQRL]",10
+"bridgeport-stamford-norwalk, ct","Technology Management Occupations [EYY6Y]",89
+"bridgeport-stamford-norwalk, ct","Information Technology Operations Occupations [FNY6Y]",3
+"bridgeport-stamford-norwalk, ct","Full Stack Developers [G6H66]",177
+"bridgeport-stamford-norwalk, ct","Data & Database Administrators, Architects, & Developers [GZZZ2]",34
+"bridgeport-stamford-norwalk, ct","Systems & Applications Administrators & Architects [HRAZZ]",123
+"bridgeport-stamford-norwalk, ct","Systems & Applications Engineers & Analysts [Z69Z3]",227
+"bridgeport-stamford-norwalk, ct","Information Technology Auditors [JBGGB]",42
+"bridgeport-stamford-norwalk, ct","Network Administrators [JUTT4]",78
+"bridgeport-stamford-norwalk, ct","Network Engineers & Architects [JZJDD]",94
+"bridgeport-stamford-norwalk, ct","Software Quality Assurance Occupations [KPD97]",107
+"bridgeport-stamford-norwalk, ct","Cloud Architects & Engineers [LZZPZ]",146
+"bridgeport-stamford-norwalk, ct","Technical Support Occupations [N3YNG]",250
+"bridgeport-stamford-norwalk, ct","Business Systems Analysts [NA56S]",3
+"bridgeport-stamford-norwalk, ct","Information & Network Security Engineers & Analysts [TMDTF]",95
+WELCOME_MSG = 'Hi! I'm Gemini, your AI assistant. I can help you analyze data, create visualizations, and answer questions. What would you like to do today?'"bridgeport-stamford-norwalk, ct","Game Developers [VH255]",6
+"bridgeport-stamford-norwalk, ct","Technical Product Managers & Owners [VNHWM]",180
+"bridgeport-stamford-norwalk, ct","Data Management & Integration Developers [WWP6P]",85
+"bridgeport-stamford-norwalk, ct","Business-to-Consumer Technical Support Occupations [X36BC]",31
+"bridgeport-stamford-norwalk, ct","Information Technology Project & Program Managers [X4XX4]",2
+"bridgeport-stamford-norwalk, ct","Data Developers [XXX29]",45
+"bridgeport-stamford-norwalk, ct","Front End Developers [ZW3TH]",81
+"new haven-milford, ct","Technology Infrastructure Engineers [25WFU]",11
+"new haven-milford, ct","User Experience Designers & Researchers [5J37J]",17
+"new haven-milford, ct","Software Development Occupations [5NN53]",174
+"new haven-milford, ct","Technical Project & Program Managers [6AZZZ]",92
+"new haven-milford, ct","Data & Database Occupations [6D2D2]",17
+"new haven-milford, ct","Information & Network Security Architects [6FHHK]",11
+"new haven-milford, ct","Information & Network Security Occupations [8YMQQ]",37
+"new haven-milford, ct","Enterprise Architects [A6DSQ]",13
+"new haven-milford, ct","Embedded Software & Firmware Developers [AFCY5]",8
+"new haven-milford, ct","Content Strategy & Information Architecture Occupations [BERXT]",3
+"new haven-milford, ct","Data & Technical Business Analysts [BY575]",64
+"new haven-milford, ct","Information Technology Vice Presidents & Directors [CECTG]",40
+"new haven-milford, ct","Business-to-Business Technical Support Occupations [CM893]",75
+"new haven-milford, ct","Technology Infrastructure Occupations [D3666]",20
+"new haven-milford, ct","Chief Information Officers & Chief Technology Officers [DH48D]",3
+"new haven-milford, ct","Software & Web Developers, Programmers, & Testers [DL222]",42
+"new haven-milford, ct","Back End Developers [DPPLP]",40
+"new haven-milford, ct","Database Administrators [EGZZJ]",10
+"new haven-milford, ct","Technology Occupations [EHPW9]",127
+"new haven-milford, ct","Computer & Information Research Scientists [EUQRL]",2
+"new haven-milford, ct","Technology Management Occupations [EYY6Y]",26
+"new haven-milford, ct","Full Stack Developers [G6H66]",67
+"new haven-milford, ct","Data & Database Administrators, Architects, & Developers [GZZZ2]",13
+"new haven-milford, ct","Systems & Applications Administrators & Architects [HRAZZ]",41
+"new haven-milford, ct","Systems & Applications Engineers & Analysts [Z69Z3]",75
+"new haven-milford, ct","Information Technology Auditors [JBGGB]",1
+"new haven-milford, ct","Network Administrators [JUTT4]",26
+"new haven-milford, ct","Network Engineers & Architects [JZJDD]",25
+"new haven-milford, ct","Software Quality Assurance Occupations [KPD97]",33
+"new haven-milford, ct","Cloud Architects & Engineers [LZZPZ]",40
+"new haven-milford, ct","Technical Support Occupations [N3YNG]",140
+"new haven-milford, ct","Business Systems Analysts [NA56S]",1
+"new haven-milford, ct","Information & Network Security Engineers & Analysts [TMDTF]",22
+"new haven-milford, ct","Game Developers [VH255]",1
+"new haven-milford, ct","Technical Product Managers & Owners [VNHWM]",25
+"new haven-milford, ct","Data Management & Integration Developers [WWP6P]",12
+"new haven-milford, ct","Business-to-Consumer Technical Support Occupations [X36BC]",42
+"new haven-milford, ct","Data Developers [XXX29]",11
+"new haven-milford, ct","Front End Developers [ZW3TH]",23
+"norwich-new london, ct","Technology Infrastructure Engineers [25WFU]",3
+"norwich-new london, ct","User Experience Designers & Researchers [5J37J]",2
+"norwich-new london, ct","Software Development Occupations [5NN53]",35
+"norwich-new london, ct","Technical Project & Program Managers [6AZZZ]",27
+"norwich-new london, ct","Data & Database Occupations [6D2D2]",4
+"norwich-new london, ct","Information & Network Security Architects [6FHHK]",1
+"norwich-new london, ct","Information & Network Security Occupations [8YMQQ]",19
+"norwich-new london, ct","Enterprise Architects [A6DSQ]",3
+"norwich-new london, ct","Embedded Software & Firmware Developers [AFCY5]",18
+"norwich-new london, ct","Data & Technical Business Analysts [BY575]",15
+"norwich-new london, ct","Information Technology Vice Presidents & Directors [CECTG]",8
+"norwich-new london, ct","Business-to-Business Technical Support Occupations [CM893]",12
+"norwich-new london, ct","Technology Infrastructure Occupations [D3666]",3
+"norwich-new london, ct","Software & Web Developers, Programmers, & Testers [DL222]",9
+"norwich-new london, ct","Back End Developers [DPPLP]",5
+"norwich-new london, ct","Database Administrators [EGZZJ]",1
+"norwich-new london, ct","Technology Occupations [EHPW9]",32
+"norwich-new london, ct","Technology Management Occupations [EYY6Y]",2
+"norwich-new london, ct","Full Stack Developers [G6H66]",10
+"norwich-new london, ct","Data & Database Administrators, Architects, & Developers [GZZZ2]",2
+"norwich-new london, ct","Systems & Applications Administrators & Architects [HRAZZ]",18
+"norwich-new london, ct","Network Administrators [JUTT4]",7
+"norwich-new london, ct","Network Engineers & Architects [JZJDD]",18
+"norwich-new london, ct","Software Quality Assurance Occupations [KPD97]",15
+"norwich-new london, ct","Cloud Architects & Engineers [LZZPZ]",2
+"norwich-new london, ct","Technical Support Occupations [N3YNG]",69
+"norwich-new london, ct","Information & Network Security Engineers & Analysts [TMDTF]",10
+"norwich-new london, ct","Technical Product Managers & Owners [VNHWM]",11
+"norwich-new london, ct","Data Management & Integration Developers [WWP6P]",6
+"norwich-new london, ct","Business-to-Consumer Technical Support Occupations [X36BC]",9
+"norwich-new london, ct","Data Developers [XXX29]",7
+"norwich-new london, ct","Systems & Applications Engineers & Analysts [Z69Z3]",39
+"norwich-new london, ct","Front End Developers [ZW3TH]",4
+"torrington, ct","Software Development Occupations [5NN53]",1
+"torrington, ct","Technical Project & Program Managers [6AZZZ]",9
+"torrington, ct","Data & Database Occupations [6D2D2]",2
+"torrington, ct","Information & Network Security Occupations [8YMQQ]",1
+"torrington, ct","Enterprise Architects [A6DSQ]",1
+"torrington, ct","Data & Technical Business Analysts [BY575]",1
+"torrington, ct","Information Technology Vice Presidents & Directors [CECTG]",1
+"torrington, ct","Business-to-Business Technical Support Occupations [CM893]",17
+"torrington, ct","Database Administrators [EGZZJ]",1
+"torrington, ct","Technology Occupations [EHPW9]",10
+"torrington, ct","Systems & Applications Administrators & Architects [HRAZZ]",4
+"torrington, ct","Network Administrators [JUTT4]",1
+"torrington, ct","Software Quality Assurance Occupations [KPD97]",4
+"torrington, ct","Technical Support Occupations [N3YNG]",15
+"torrington, ct","Information & Network Security Engineers & Analysts [TMDTF]",2
+"torrington, ct","Game Developers [VH255]",1
+"torrington, ct","Technical Product Managers & Owners [VNHWM]",1
+"torrington, ct","Business-to-Consumer Technical Support Occupations [X36BC]",1
+"torrington, ct","Front End Developers [ZW3TH]",1
+`;
+        
+        const palette = {
+            'primary-dark': '#023E7D',
+            'primary-medium': '#00509D',
+            'primary-light': '#0077B6',
+            'accent-1': '#00B4D8',
+            'accent-2': '#48CAE4',
+            'accent-3': '#90E0EF',
+            'bg-light': '#CAF0F8',
+        };
+        const colorCycle = [
+            palette['primary-medium'],
+            palette['accent-1'],
+            palette['primary-light'],
+            palette['accent-2'],
+            palette['primary-dark'],
+            palette['accent-3']
+        ];
+
+        function cleanOccupation(occ) {
+            return occ.replace(/\[[A-Z0-9]{5}\]$/, '').trim();
+        }
+        
+        function processLabel(label) {
+            const maxLength = 16;
+            if (label.length <= maxLength) {
+                return label;
+            }
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = '';
+            for (const word of words) {
+                if ((currentLine + word).length > maxLength) {
+                    if (currentLine.length > 0) {
+                        lines.push(currentLine.trim());
+                    }
+                    currentLine = word + ' ';
+                } else {
+                    currentLine += word + ' ';
+                }
+            }
+            if (currentLine.length > 0) {
+                lines.push(currentLine.trim());
+            }
+            return lines;
+        }
+
+        function tooltipTitleCallback(tooltipItems) {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+              return label.join(' ');
+            } else {
+              return label;
+            }
+        }
+        
+        const commonChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTitleCallback
+                    },
+                    backgroundColor: '#000',
+                    titleFont: { size: 14 },
+                    bodyFont: { size: 12 },
+                    padding: 10,
+                    cornerRadius: 4
+                },
+                legend: {
+                    labels: {
+                        font: {
+                            size: 12
+                        },
+                        color: '#333'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#333', font: { size: 10 } },
+                    grid: { display: false }
+                },
+                y: {
+                    ticks: { color: '#333', font: { size: 10 } },
+                    grid: { color: '#e0e0e0', drawBorder: false }
+                }
+            }
+        };
+        
+        const horizontalChartOptions = {
+            ...commonChartOptions,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    ...commonChartOptions.scales.x,
+                    grid: { color: '#e0e0e0', drawBorder: false },
+                    min: 0
+                },
+                y: {
+                    ...commonChartOptions.scales.y,
+                    grid: { display: false }
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const lines = csvData.trim().split('\n');
+            const msaPostings = {};
+            const ctOccupationPostings = {};
+            const msaOccupationPostings = {};
+            let totalPostings = 0;
+
+            for (let i = 2; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const parts = [];
+                let current = '';
+                let inQuote = false;
+                for (let j = 0; j < line.length; j++) {
+                    const char = line[j];
+                    if (char === '"') {
+                        inQuote = !inQuote;
+                    } else if (char === ',' && !inQuote) {
+                        parts.push(current);
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                parts.push(current);
+
+                if (parts.length === 3) {
+                    try {
+                        const msa = parts[0].trim();
+                        const occupation = cleanOccupation(parts[1].trim());
+                        const postings = parseInt(parts[2].trim(), 10);
+
+                        if (msa && occupation && !isNaN(postings)) {
+                            totalPostings += postings;
+                            msaPostings[msa] = (msaPostings[msa] || 0) + postings;
+                            ctOccupationPostings[occupation] = (ctOccupationPostings[occupation] || 0) + postings;
+                            
+                            if (!msaOccupationPostings[msa]) {
+                                msaOccupationPostings[msa] = {};
+                            }
+                            msaOccupationPostings[msa][occupation] = (msaOccupationPostings[msa][occupation] || 0) + postings;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing line:', line, e);
+                    }
+                }
+            }
+
+            document.getElementById('totalPostings').innerText = totalPostings.toLocaleString();
+
+            const msaData = Object.entries(msaPostings).sort((a, b) => b[1] - a[1]);
+            const msaLabels = msaData.map(d => d[0].replace(', ct', ''));
+            const msaValues = msaData.map(d => d[1]);
+
+            new Chart(document.getElementById('msaBarChart'), {
+                type: 'bar',
+                data: {
+                    labels: msaLabels.map(processLabel),
+                    datasets: [{
+                        label: 'Total Tech Postings',
+                        data: msaValues,
+                        backgroundColor: colorCycle,
+                        borderColor: '#fff',
+                        borderWidth: 1
+                    }]
+                },
+                options: { ...commonChartOptions, plugins: { ...commonChartOptions.plugins, legend: { display: false } } }
+            });
+
+            new Chart(document.getElementById('msaDonutChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: msaLabels,
+                    datasets: [{
+                        data: msaValues,
+                        backgroundColor: colorCycle,
+                        hoverOffset: 4
+                    }]
+                },
+                options: { ...commonChartOptions, scales: { x: { display: false }, y: { display: false } }, plugins: { ...commonChartOptions.plugins, legend: { position: 'bottom' } } }
+            });
+
+            const topRolesData = Object.entries(ctOccupationPostings).sort((a, b) => b[1] - a[1]).slice(0, 15);
+            const topRolesLabels = topRolesData.map(d => processLabel(d[0])).reverse();
+            const topRolesValues = topRolesData.map(d => d[1]).reverse();
+
+            new Chart(document.getElementById('topRolesChart'), {
+                type: 'bar',
+                data: {
+                    labels: topRolesLabels,
+                    datasets: [{
+                        label: 'Total Postings (CT-Wide)',
+                        data: topRolesValues,
+                        backgroundColor: palette['primary-medium'],
+                        borderColor: palette['primary-dark'],
+                        borderWidth: 1
+                    }]
+                },
+                options: { 
+                    ...horizontalChartOptions, 
+                    plugins: { 
+                        ...horizontalChartOptions.plugins, 
+                        legend: { display: false } 
+                    },
+                    afterDatasetsDraw: function (chart) {
+                        const { ctx, data, scales: { x, y } } = chart;
+                        ctx.save();
+                        
+                        ctx.font = 'bold 12px sans-serif';
+                        ctx.textBaseline = 'middle';
+
+                        const dataset = data.datasets[0];
+                        const meta = chart.getDatasetMeta(0);
+
+                        meta.data.forEach((bar, index) => {
+                            const value = dataset.data[index];
+                            const label = value.toLocaleString();
+                            const xPos = bar.x;
+                            const yPos = bar.y;
+
+                            const textWidth = ctx.measureText(label).width;
+                            
+                            if (xPos < x.getPixelForValue(0) + textWidth + 10) {
+                                // Value is small, draw label outside the bar
+                                ctx.fillStyle = palette['primary-dark'];
+                                ctx.textAlign = 'left';
+                                ctx.fillText(label, xPos + 5, yPos);
+                            } else {
+                                // Value is large, draw label inside the bar
+                                ctx.fillStyle = 'white';
+                                ctx.textAlign = 'right';
+                                ctx.fillText(label, xPos - 5, yPos);
+                            }
+                        });
+                        ctx.restore();
+                    }
+                }
+            });
+
+            const big3MSAs = ['hartford-east hartford-middletown, ct', 'bridgeport-stamford-norwalk, ct', 'new haven-milford, ct'];
+            const allTopRoles = new Set();
+            const big3Data = {};
+
+            big3MSAs.forEach(msa => {
+                const top5 = Object.entries(msaOccupationPostings[msa] || {}).sort((a, b) => b[1] - a[1]).slice(0, 5);
+                big3Data[msa] = {};
+                top5.forEach(([occ, count]) => {
+                    allTopRoles.add(occ);
+                    big3Data[msa][occ] = count;
+                });
+            });
+
+            const groupedLabels = Array.from(allTopRoles);
+            const groupedDatasets = big3MSAs.map((msa, i) => {
+                return {
+                    label: msa.replace('-middletown, ct', '').replace(', ct', ''),
+                    data: groupedLabels.map(occ => big3Data[msa][occ] || 0),
+                    backgroundColor: colorCycle[i % colorCycle.length],
+                };
+            });
+
+            new Chart(document.getElementById('groupedBarChart'), {
+                type: 'bar',
+                data: {
+                    labels: groupedLabels.map(processLabel),
+                    datasets: groupedDatasets
+                },
+                options: { ...commonChartOptions, plugins: { ...commonChartOptions.plugins, legend: { position: 'bottom' } } }
+            });
+
+            const stamfordMSA = 'bridgeport-stamford-norwalk, ct';
+            const totalStamfordPostings = msaPostings[stamfordMSA];
+            const stamfordOccupations = msaOccupationPostings[stamfordMSA] || {};
+            const lqData = [];
+
+            Object.keys(stamfordOccupations).forEach(occupation => {
+                const stamfordRolePostings = stamfordOccupations[occupation];
+                const ctRolePostings = ctOccupationPostings[occupation];
+                
+                const stamfordRoleShare = stamfordRolePostings / totalStamfordPostings;
+                const ctRoleShare = ctRolePostings / totalPostings;
+                
+                const lq = ctRoleShare > 0 ? (stamfordRoleShare / ctRoleShare) : 0;
+                
+                lqData.push({ occupation, lq, volume: stamfordRolePostings });
+            });
+
+            const topLqData = lqData.filter(d => d.lq > 1).sort((a, b) => b.lq - a.lq).slice(0, 10);
+            const lqLabels = topLqData.map(d => processLabel(d.occupation)).reverse();
+            const lqValues = topLqData.map(d => d.lq).reverse();
+
+            new Chart(document.getElementById('lqChart'), {
+                type: 'bar',
+                data: {
+                    labels: lqLabels,
+                    datasets: [{
+                        label: 'Location Quotient (LQ)',
+                        data: lqValues,
+                        backgroundColor: palette['accent-1'],
+                        borderColor: palette['primary-light'],
+                        borderWidth: 1
+                    }]
+                },
+                options: { ...horizontalChartOptions, plugins: { ...horizontalChartOptions.plugins, legend: { display: false } }, scales: { ...horizontalChartOptions.scales, x: { ...horizontalChartOptions.scales.x, title: { display: true, text: 'Location Quotient (LQ)' } } } }
+            });
+
+            const bubbleTrace = {
+                x: lqData.map(d => d.volume),
+                y: lqData.map(d => d.lq),
+                text: lqData.map(d => `${d.occupation}<br>Volume: ${d.volume}<br>LQ: ${d.lq.toFixed(2)}`),
+                mode: 'markers',
+                type: 'scattergl',
+                marker: {
+                    size: lqData.map(d => Math.sqrt(d.volume) / 1.5 + 5),
+                    color: lqData.map(d => d.lq),
+                    colorscale: [
+                        [0, palette['accent-3']],
+                        [0.5, palette['accent-1']],
+                        [1, palette['primary-dark']]
+                    ],
+                    showscale: true,
+                    colorbar: {
+                        title: 'LQ'
+                    }
+                }
+            };
+
+            const bubbleLayout = {
+                title: 'Stamford MSA: Role Volume vs. Specialization',
+                xaxis: { 
+                    title: 'Total Postings (Volume)', 
+                    gridcolor: '#eee' 
+                },
+                yaxis: { 
+                    title: 'Location Quotient (Specialization)', 
+                    zerolinecolor: '#000', 
+                    zerolinewidth: 2, 
+                    gridcolor: '#eee'
+                },
+                hovermode: 'closest',
+                plot_bgcolor: '#fff',
+                paper_bgcolor: '#fff',
+                font: {
+                    family: 'sans-serif',
+                    color: '#333'
+                },
+                autosize: true
+            };
+
+            Plotly.newPlot('bubbleChart', [bubbleTrace], bubbleLayout, {responsive: true, displaylogo: false});
+        });
+    </script>
+</body>
+</html>
+
+
